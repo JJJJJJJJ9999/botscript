@@ -1,0 +1,1318 @@
+---botscript only works for jjs u'll have to change remotes for other games
+
+function movebuttonshandler()
+
+	local Players = game:GetService("Players")
+	local UserInputService = game:GetService("UserInputService")
+
+	local player = Players.LocalPlayer
+	local playerGui = player:WaitForChild("PlayerGui")
+
+	local cd = false
+
+	-- Function to make a GUI object snap to (0, 0) when dragged
+	local function makeDraggable(guiObject)
+
+		local conn = nil
+
+		conn = guiObject.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch and cd == false then
+				-- Immediately set position to (0, 0) when clicked/dragged
+
+				cd = true
+
+				guiObject.Position = UDim2.new(0, 0, 0, 0)
+				task.wait(0.5)
+				guiObject.Position = UDim2.new(0, (guiObject.AbsolutePosition.X * -1) + (-15), 0, (guiObject.AbsolutePosition.Y * -1) + (-60))
+				conn:Disconnect()
+			end
+		end)
+	end
+
+	-- Function to scan and make all buttons snap to (0, 0)
+	local function processGui(gui)
+		-- Process existing buttons
+		local buttons = gui:GetDescendants()
+		for _, element in ipairs(buttons) do
+			if element:IsA("TextButton") or element:IsA("ImageButton") then
+				makeDraggable(element)
+			end
+		end
+
+		-- Set up listener for new buttons
+		gui.DescendantAdded:Connect(function(descendant)
+			if descendant:IsA("TextButton") or descendant:IsA("ImageButton") then
+				makeDraggable(descendant)
+			end
+		end)
+	end
+
+	-- Process all existing GUIs
+	for _, gui in ipairs(playerGui:GetChildren()) do
+		if gui:IsA("ScreenGui") then
+			processGui(gui)
+		end
+	end
+
+	coroutine.wrap(function()
+
+		local hrp = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+		while task.wait() do
+
+			if hrp:IsDescendantOf(game) == false or game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health < 1 then
+
+				if cd == true then
+
+					cd = false
+
+				end
+
+			end
+
+		end
+
+	end)()
+
+end
+
+local movebuttonshandlertoggled = false
+local answeredMoveAttackButtonPrompt = false
+
+local IsInTSBScreenGUI = Instance.new("ScreenGui")
+IsInTSBScreenGUI.Enabled = true
+IsInTSBScreenGUI.ResetOnSpawn = false
+IsInTSBScreenGUI.Parent = game:GetService("CoreGui")
+
+YesPromptbutton = Instance.new("TextButton")
+YesPromptbutton.Position = UDim2.new(0.272, 0,0.412, 0)
+YesPromptbutton.Size = UDim2.new(0.15, 0,0.258, 0)
+YesPromptbutton.Text = "TSB"
+YesPromptbutton.TextScaled = true
+YesPromptbutton.TextColor3 = Color3.fromRGB(255,255,255)
+YesPromptbutton.Parent = IsInTSBScreenGUI
+
+NoPromptbutton = Instance.new("TextButton")
+NoPromptbutton.Position = UDim2.new(0.604, 0,0.412, 0)
+NoPromptbutton.Size = UDim2.new(0.15, 0,0.258, 0)
+NoPromptbutton.Text = "Nah"
+NoPromptbutton.TextScaled = true
+NoPromptbutton.TextColor3 = Color3.fromRGB(255,255,255)
+NoPromptbutton.Parent = IsInTSBScreenGUI
+
+YesPromptbutton.MouseButton1Down:Connect(function()
+
+	movebuttonshandlertoggled = true
+	answeredMoveAttackButtonPrompt = true
+
+end)
+
+NoPromptbutton.MouseButton1Down:Connect(function()
+
+	answeredMoveAttackButtonPrompt = true
+
+end)
+
+repeat task.wait()
+
+
+until answeredMoveAttackButtonPrompt == true
+
+IsInTSBScreenGUI:Destroy()
+
+local hostname = ""--- Enter player name of the main account / host (NOT BOT ACCOUNT)
+
+--gui to pick host
+
+local hostpickedBool = false
+
+local HostPickerscreengui = Instance.new("ScreenGui")
+HostPickerscreengui.Enabled = true
+HostPickerscreengui.ResetOnSpawn = false
+HostPickerscreengui.Parent = game:GetService("CoreGui")
+
+local scrollingframe = Instance.new("ScrollingFrame")
+scrollingframe.BackgroundColor3 = Color3.fromRGB(0,0,0)
+scrollingframe.BackgroundTransparency = 0.7
+scrollingframe.Position = UDim2.new(0.301, 0,0.25, 0)
+scrollingframe.Size = UDim2.new(0.513, 0,0.646, 0)
+scrollingframe.CanvasSize = UDim2.new(0,0,100,0)
+scrollingframe.Parent = HostPickerscreengui
+
+local uigridlayout = Instance.new("UIGridLayout")
+uigridlayout.CellSize = UDim2.new(0.75,0,0,50)
+uigridlayout.Parent = scrollingframe
+
+function createHostPickerButton(insName, insDisplayName)
+
+	local hostPickerInputButton = Instance.new("TextButton")
+	hostPickerInputButton.BackgroundColor3 = Color3.fromRGB(64,64,64)
+	hostPickerInputButton.BackgroundTransparency = 0.5
+	hostPickerInputButton.Text = insName.. " - " ..insDisplayName
+	hostPickerInputButton.TextScaled = true
+	hostPickerInputButton.TextColor3 = Color3.fromRGB(255,255,255)
+	hostPickerInputButton.Parent = scrollingframe
+
+	hostPickerInputButton.MouseButton1Down:Connect(function()
+
+		hostpickedBool = true
+		hostname = insName
+
+	end)
+
+end
+
+for i,v in ipairs(game:GetService("Players"):GetChildren()) do
+
+	--if v:IsFriendsWith(game:GetService('Players').LocalPlayer.UserId) then
+
+		createHostPickerButton(v.Name, v.DisplayName)
+
+	--end
+
+end
+
+repeat task.wait()
+until hostpickedBool == true
+
+HostPickerscreengui:Destroy()
+
+--
+
+function rtp(actionname, inputstate)
+
+	if inputstate == Enum.UserInputState.Begin then
+
+	end
+
+end
+
+
+game:GetService("ContextActionService"):BindAction("RTP", rtp, false, Enum.UserInputType.MouseButton1)
+game:GetService("ContextActionService"):UnbindAction("RTP")
+
+
+
+--- guis
+
+local MenuOpen = false
+local openposition = UDim2.new(0, 0,0.317, 0)
+local closeposition = UDim2.new(-0.328, 0,0.322, 0)
+
+local screengui = Instance.new("ScreenGui")
+screengui.Enabled = true
+screengui.ResetOnSpawn = false
+screengui.Parent = game:GetService("CoreGui")
+
+--frames
+
+local bg = Instance.new("Frame")
+bg.BackgroundColor3 = Color3.fromRGB(0,0,0)
+bg.BackgroundTransparency = 0.5
+bg.Position = openposition
+bg.Size = UDim2.new(0.327, 0,0.446, 0)
+bg.Parent = screengui
+
+--textbuttons
+
+ToggleCamAimbot = Instance.new("TextButton")
+ToggleCamAimbot.BackgroundColor3 = Color3.fromRGB(64,64,64)
+ToggleCamAimbot.BackgroundTransparency = 0.5
+ToggleCamAimbot.Position = UDim2.new(0.032, 0,0.308, 0)
+ToggleCamAimbot.Size = UDim2.new(0.23, 0,0.1, 0)
+ToggleCamAimbot.Text = "Cam aimbot : false"
+ToggleCamAimbot.TextScaled = true
+ToggleCamAimbot.TextColor3 = Color3.fromRGB(255,255,255)
+ToggleCamAimbot.Parent = bg
+
+ToggleAutoR = Instance.new("TextButton")
+ToggleAutoR.BackgroundColor3 = Color3.fromRGB(64,64,64)
+ToggleAutoR.BackgroundTransparency = 0.5
+ToggleAutoR.Position = UDim2.new(0.063, 0,0.865, 0)
+ToggleAutoR.Size = UDim2.new(0.398, 0,0.134, 0)
+ToggleAutoR.Text = "Auto R : false"
+ToggleAutoR.TextScaled = true
+ToggleAutoR.TextColor3 = Color3.fromRGB(255,255,255)
+ToggleAutoR.Parent = bg
+
+ToggleAutoAttack = Instance.new("TextButton")
+ToggleAutoAttack.BackgroundColor3 = Color3.fromRGB(64,64,64)
+ToggleAutoAttack.BackgroundTransparency = 0.5
+ToggleAutoAttack.Position = UDim2.new(0.482, 0,0.792, 0)
+ToggleAutoAttack.Size = UDim2.new(0.41, 0,0.182, 0)
+ToggleAutoAttack.Text = "Auto Attack : false"
+ToggleAutoAttack.TextScaled = true
+ToggleAutoAttack.TextColor3 = Color3.fromRGB(255,255,255)
+ToggleAutoAttack.Parent = bg
+
+JJSSettings = Instance.new("TextButton")
+JJSSettings.BackgroundColor3 = Color3.fromRGB(64,64,64)
+JJSSettings.BackgroundTransparency = 0.5
+JJSSettings.Position = UDim2.new(0.576, 0,0.575, 0)
+JJSSettings.Size = UDim2.new(0.329, 0,0.1, 0)
+JJSSettings.Text = "JJS Settings"
+JJSSettings.TextScaled = true
+JJSSettings.TextColor3 = Color3.fromRGB(255,255,255)
+JJSSettings.Parent = bg
+
+PreciseLockOnToggle = Instance.new("TextButton")
+PreciseLockOnToggle.BackgroundColor3 = Color3.fromRGB(64,64,64)
+PreciseLockOnToggle.BackgroundTransparency = 0.5
+PreciseLockOnToggle.Position = UDim2.new(0.033, 0,0.218, 0)
+PreciseLockOnToggle.Size = UDim2.new(0.229, 0,0.061, 0)
+PreciseLockOnToggle.Text = "Toggle exactLockOn : false"
+PreciseLockOnToggle.TextScaled = true
+PreciseLockOnToggle.TextColor3 = Color3.fromRGB(255,255,255)
+PreciseLockOnToggle.Parent = bg
+
+CheckDistanceToggle = Instance.new("TextButton")
+CheckDistanceToggle.BackgroundColor3 = Color3.fromRGB(64,64,64)
+CheckDistanceToggle.BackgroundTransparency = 0.5
+CheckDistanceToggle.Position = UDim2.new(0.337, 0,0.218, 0)
+CheckDistanceToggle.Size = UDim2.new(0.229, 0,0.061, 0)
+CheckDistanceToggle.Text = "Toggle Check Distance : true"
+CheckDistanceToggle.TextScaled = true
+CheckDistanceToggle.TextColor3 = Color3.fromRGB(255,255,255)
+CheckDistanceToggle.Parent = bg
+
+TSBSettings = Instance.new("TextButton")
+TSBSettings.BackgroundColor3 = Color3.fromRGB(64,64,64)
+TSBSettings.BackgroundTransparency = 0.5
+TSBSettings.Position = UDim2.new(0.572, 0,0.431, 0)
+TSBSettings.Size = UDim2.new(0.329, 0,0.1, 0)
+TSBSettings.Text = "TSB settings"
+TSBSettings.TextScaled = true
+TSBSettings.TextColor3 = Color3.fromRGB(255,255,255)
+TSBSettings.Parent = bg
+
+InverseMultipliers = Instance.new("TextButton")
+InverseMultipliers.BackgroundColor3 = Color3.fromRGB(64,64,64)
+InverseMultipliers.BackgroundTransparency = 0.5
+InverseMultipliers.Position = UDim2.new(0.064, 0,0.74, 0)
+InverseMultipliers.Size = UDim2.new(0.329, 0,0.1, 0)
+InverseMultipliers.Text = "Inverse Offset Multipliers ( multiply by negative 1 )"
+InverseMultipliers.TextScaled = true
+InverseMultipliers.TextColor3 = Color3.fromRGB(255,255,255)
+InverseMultipliers.Parent = bg
+
+YaxisToggle = Instance.new("TextButton")
+YaxisToggle.BackgroundColor3 = Color3.fromRGB(64,64,64)
+YaxisToggle.BackgroundTransparency = 0.5
+YaxisToggle.Position = UDim2.new(0.632, 0,0.218, 0)
+YaxisToggle.Size = UDim2.new(0.229, 0,0.061, 0)
+YaxisToggle.Text = "Toggle Y axis Lock on : true"
+YaxisToggle.TextScaled = true
+YaxisToggle.TextColor3 = Color3.fromRGB(255,255,255)
+YaxisToggle.Parent = bg
+
+-- text boxes
+
+SRZTextBox = Instance.new("TextBox")
+SRZTextBox.BackgroundColor3 = Color3.fromRGB(64,64,64)
+SRZTextBox.BackgroundTransparency = 0.5
+SRZTextBox.Position = UDim2.new(0.292, 0,-0.001, 0)
+SRZTextBox.Size = UDim2.new(0.1, 0,0.1, 0)
+SRZTextBox.Text = "-35"
+SRZTextBox.TextScaled = true
+SRZTextBox.TextColor3 = Color3.fromRGB(255,255,255)
+SRZTextBox.PlaceholderText = "SR Z"
+SRZTextBox.Parent = bg
+
+SRYTextBox = Instance.new("TextBox")
+SRYTextBox.BackgroundColor3 = Color3.fromRGB(64,64,64)
+SRYTextBox.BackgroundTransparency = 0.5
+SRYTextBox.Position = UDim2.new(0.161, 0,-0.001, 0)
+SRYTextBox.Size = UDim2.new(0.1, 0,0.1, 0)
+SRYTextBox.Text = "15"
+SRYTextBox.TextScaled = true
+SRYTextBox.TextColor3 = Color3.fromRGB(255,255,255)
+SRYTextBox.PlaceholderText = "SR Y"
+SRYTextBox.Parent = bg
+
+SRXTextBox = Instance.new("TextBox")
+SRXTextBox.BackgroundColor3 = Color3.fromRGB(64,64,64)
+SRXTextBox.BackgroundTransparency = 0.5
+SRXTextBox.Position = UDim2.new(0.026, 0,-0.001, 0)
+SRXTextBox.Size = UDim2.new(0.1, 0,0.1, 0)
+SRXTextBox.Text = "0"
+SRXTextBox.TextScaled = true
+SRXTextBox.TextColor3 = Color3.fromRGB(255,255,255)
+SRXTextBox.PlaceholderText = "SR X"
+SRXTextBox.Parent = bg
+
+TPDistTextBox = Instance.new("TextBox")
+TPDistTextBox.BackgroundColor3 = Color3.fromRGB(64,64,64)
+TPDistTextBox.BackgroundTransparency = 0.5
+TPDistTextBox.Position = UDim2.new(0.335, 0,0.115, 0)
+TPDistTextBox.Size = UDim2.new(0.23, 0,0.065, 0)
+TPDistTextBox.Text = "-2"
+TPDistTextBox.TextScaled = true
+TPDistTextBox.TextColor3 = Color3.fromRGB(255,255,255)
+TPDistTextBox.PlaceholderText = "Tp fly distance"
+TPDistTextBox.Parent = bg
+
+VelSpeedTextBox = Instance.new("TextBox")
+VelSpeedTextBox.BackgroundColor3 = Color3.fromRGB(64,64,64)
+VelSpeedTextBox.BackgroundTransparency = 0.5
+VelSpeedTextBox.Position = UDim2.new(0.631, 0,0.115, 0)
+VelSpeedTextBox.Size = UDim2.new(0.23, 0,0.065, 0)
+VelSpeedTextBox.Text = "100"
+VelSpeedTextBox.TextScaled = true
+VelSpeedTextBox.TextColor3 = Color3.fromRGB(255,255,255)
+VelSpeedTextBox.PlaceholderText = "Velocity speed"
+VelSpeedTextBox.Parent = bg
+
+ZMultiplierOffsetTextBox = Instance.new("TextBox")
+ZMultiplierOffsetTextBox.BackgroundColor3 = Color3.fromRGB(64,64,64)
+ZMultiplierOffsetTextBox.BackgroundTransparency = 0.5
+ZMultiplierOffsetTextBox.Position = UDim2.new(0.311, 0,0.6, 0)
+ZMultiplierOffsetTextBox.Size = UDim2.new(0.1, 0,0.1, 0)
+ZMultiplierOffsetTextBox.Text = "1"
+ZMultiplierOffsetTextBox.TextScaled = true
+ZMultiplierOffsetTextBox.TextColor3 = Color3.fromRGB(255,255,255)
+ZMultiplierOffsetTextBox.Parent = bg
+
+YMultiplierOffsetTextBox = Instance.new("TextBox")
+YMultiplierOffsetTextBox.BackgroundColor3 = Color3.fromRGB(64,64,64)
+YMultiplierOffsetTextBox.BackgroundTransparency = 0.5
+YMultiplierOffsetTextBox.Position = UDim2.new(0.17, 0,0.6, 0)
+YMultiplierOffsetTextBox.Size = UDim2.new(0.1, 0,0.1, 0)
+YMultiplierOffsetTextBox.Text = "1"
+YMultiplierOffsetTextBox.TextScaled = true
+YMultiplierOffsetTextBox.TextColor3 = Color3.fromRGB(255,255,255)
+YMultiplierOffsetTextBox.Parent = bg
+
+XMultiplierOffsetTextBox = Instance.new("TextBox")
+XMultiplierOffsetTextBox.BackgroundColor3 = Color3.fromRGB(64,64,64)
+XMultiplierOffsetTextBox.BackgroundTransparency = 0.5
+XMultiplierOffsetTextBox.Position = UDim2.new(0.033, 0,0.6, 0)
+XMultiplierOffsetTextBox.Size = UDim2.new(0.1, 0,0.1, 0)
+XMultiplierOffsetTextBox.Text = "1"
+XMultiplierOffsetTextBox.TextScaled = true
+XMultiplierOffsetTextBox.TextColor3 = Color3.fromRGB(255,255,255)
+XMultiplierOffsetTextBox.Parent = bg
+
+-- text labels
+
+XMultiplierLabel = Instance.new("TextLabel")
+XMultiplierLabel.BackgroundColor3 = Color3.fromRGB(64,64,64)
+XMultiplierLabel.BackgroundTransparency = 0.5
+XMultiplierLabel.Position = UDim2.new(0.027, 0,0.431, 0)
+XMultiplierLabel.Size = UDim2.new(0.11, 0,0.123, 0)
+XMultiplierLabel.Text = "X"
+XMultiplierLabel.TextScaled = true
+XMultiplierLabel.TextColor3 = Color3.fromRGB(255,255,255)
+XMultiplierLabel.Parent = bg
+
+YMultiplierLabel = Instance.new("TextLabel")
+YMultiplierLabel.BackgroundColor3 = Color3.fromRGB(64,64,64)
+YMultiplierLabel.BackgroundTransparency = 0.5
+YMultiplierLabel.Position = UDim2.new(0.165, 0,0.431, 0)
+YMultiplierLabel.Size = UDim2.new(0.11, 0,0.123, 0)
+YMultiplierLabel.Text = "Y"
+YMultiplierLabel.TextScaled = true
+YMultiplierLabel.TextColor3 = Color3.fromRGB(255,255,255)
+YMultiplierLabel.Parent = bg
+
+ZMultiplierLabel = Instance.new("TextLabel")
+ZMultiplierLabel.BackgroundColor3 = Color3.fromRGB(64,64,64)
+ZMultiplierLabel.BackgroundTransparency = 0.5
+ZMultiplierLabel.Position = UDim2.new(0.306, 0,0.431, 0)
+ZMultiplierLabel.Size = UDim2.new(0.11, 0,0.123, 0)
+ZMultiplierLabel.Text = "Z"
+ZMultiplierLabel.TextScaled = true
+ZMultiplierLabel.TextColor3 = Color3.fromRGB(255,255,255)
+ZMultiplierLabel.Parent = bg
+
+if movebuttonshandlertoggled == true then
+
+	movebuttonshandler()
+
+end
+
+-- lock on vars
+
+local spammoves = false
+local spamR = false
+
+local preciseLockOn = false
+local multiplierZAxis = 1
+local multiplierYAxis = 1
+local multiplierXAxis = 1
+local checkDistance = true
+
+local orientLockOnDedicatedPart = Instance.new("Part")
+
+local targetserversidehitboxpart = Instance.new("Part")
+
+local serverhitboxvisualisation = true
+
+local SubjectionYAxisToggled = true
+
+local camaimbottoggled = false
+
+--- gui events
+
+ToggleCamAimbot.MouseButton1Down:Connect(function()
+
+	camaimbottoggled = not camaimbottoggled
+
+	ToggleCamAimbot.Text = "Cam aimbot : "..tostring(camaimbottoggled)
+
+end)
+
+ToggleAutoR.MouseButton1Down:Connect(function()
+
+	spamR = not spamR
+
+	ToggleAutoR.Text = "Auto R : "..tostring(spamR)
+
+end)
+
+ToggleAutoAttack.MouseButton1Down:Connect(function()
+
+	spammoves = not spammoves
+
+	ToggleAutoAttack.Text = "Auto Attack : " ..tostring(spammoves)
+
+end)
+
+TSBSettings.MouseButton1Down:Connect(function()
+
+	SubjectionYAxisToggled = false
+
+	YaxisToggle.Text = "Toggle Y axis Lock on : ".. tostring(SubjectionYAxisToggled)
+
+	preciseLockOn = true
+
+	PreciseLockOnToggle.Text = "Toggle exactLockOn : " .. tostring(preciseLockOn)
+
+	checkDistance = false
+
+	CheckDistanceToggle.Text = "Toggle Check Distance : ".. tostring(checkDistance)
+
+	ZMultiplierOffsetTextBox.Text = "8"
+	YMultiplierOffsetTextBox.Text = "8"
+	XMultiplierOffsetTextBox.Text = "8"
+
+end)
+
+JJSSettings.MouseButton1Down:Connect(function()
+
+	SubjectionYAxisToggled = false
+
+	YaxisToggle.Text = "Toggle Y axis Lock on : ".. tostring(SubjectionYAxisToggled)
+
+	preciseLockOn = false
+
+	PreciseLockOnToggle.Text = "Toggle exactLockOn : " .. tostring(preciseLockOn)
+
+	checkDistance = true
+
+	CheckDistanceToggle.Text = "Toggle Check Distance : ".. tostring(checkDistance)
+
+	ZMultiplierOffsetTextBox.Text = "1"
+	YMultiplierOffsetTextBox.Text = "1"
+	XMultiplierOffsetTextBox.Text = "1"
+
+end)
+
+PreciseLockOnToggle.MouseButton1Down:Connect(function()
+
+	preciseLockOn = not preciseLockOn
+
+	PreciseLockOnToggle.Text = "Toggle exactLockOn : " .. tostring(preciseLockOn)
+
+end)
+
+CheckDistanceToggle.MouseButton1Down:Connect(function()
+
+	checkDistance = not checkDistance
+
+	CheckDistanceToggle.Text = "Toggle Check Distance : ".. tostring(checkDistance)
+
+end)
+
+YaxisToggle.MouseButton1Down:Connect(function()
+
+	SubjectionYAxisToggled = not SubjectionYAxisToggled
+
+	YaxisToggle.Text = "Toggle Y axis Lock on : ".. tostring(SubjectionYAxisToggled)
+
+end)
+
+InverseMultipliers.MouseButton1Down:Connect(function()
+
+	local zofftextboxtext = tonumber(ZMultiplierOffsetTextBox.Text)
+	local yofftextboxtext = tonumber(YMultiplierOffsetTextBox.Text)
+	local xofftextboxtext = tonumber(XMultiplierOffsetTextBox.Text)
+
+	ZMultiplierOffsetTextBox.Text = tostring(zofftextboxtext*-1)
+	YMultiplierOffsetTextBox.Text = tostring(yofftextboxtext*-1)
+	XMultiplierOffsetTextBox.Text = tostring(xofftextboxtext*-1)
+
+end)
+
+--
+
+local effectfolder = Instance.new("Folder")
+effectfolder.Name = "EFfeiuAGFuyagfiug23981q012091212"
+effectfolder.Parent = game:GetService("Workspace")
+
+--
+
+local HostPlayer = game:GetService("Players"):FindFirstChild(hostname)
+
+local phase = 1
+
+local targ = nil
+
+local right = false
+
+function fetchuserfromplayerlisttolockon(partialname)
+
+	local res = nil
+
+	for i,v in ipairs(game:GetService("Players"):GetChildren()) do
+
+		if string.find(string.lower(v.Name), string.lower(partialname), 1, true) then
+
+			if  v ~= game.Players.LocalPlayer then
+
+				res = v.Character.HumanoidRootPart
+
+			end
+
+			break
+
+		elseif string.find(string.lower(v.DisplayName), string.lower(partialname), 1, true) then
+
+			if v ~= game.Players.LocalPlayer then
+
+				res = v.Character.HumanoidRootPart
+
+			end
+
+			break
+
+		end
+
+	end
+
+	return res
+
+end
+
+function fetchuserfromplayerlisttoswitchwith(partialname)
+
+	local res = nil
+
+	for i,v in ipairs(game:GetService("Players"):GetChildren()) do
+
+		if string.find(string.lower(v.Name), string.lower(partialname), 1, true) then
+
+			if  v ~= game.Players.LocalPlayer then
+
+				res = v
+
+			end
+
+			break
+
+		elseif string.find(string.lower(v.DisplayName), string.lower(partialname), 1, true) then
+
+			if v ~= game.Players.LocalPlayer then
+
+				res = v
+
+			end
+
+			break
+
+		end
+
+	end
+
+	return res
+
+end
+
+
+function checkdist(t)
+
+	return (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - t.Position).magnitude
+
+end
+
+local HostPlayerconn = nil
+local autoattackEnabled = false
+
+local bang = false
+local banganim = Instance.new("Animation")
+banganim.AnimationId = "rbxassetid://148840371"
+local banganimationloaded = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):LoadAnimation(banganim)
+
+local xaxisFaceOrient = 0
+local zaxisFaceOrient = 0
+
+function sethostplayerconnection()
+
+	HostPlayerconn = HostPlayer.Chatted:Connect(function(message)
+
+		local succ, err = pcall(function()
+
+			local words = {}
+			for word in message:gmatch("%S+") do
+				table.insert(words, word)
+			end
+
+			if words[1] == "?r" then
+
+				targ = nil
+				phase = 1
+
+			elseif words[1] == "?a" then
+
+				local targetplar = words[2]
+
+				if fetchuserfromplayerlisttolockon(targetplar) ~= nil then
+
+					targ = fetchuserfromplayerlisttolockon(targetplar)
+					phase = 2
+
+				end
+
+			elseif words[1] == "?b" then
+
+				local targetplar = words[2]
+
+				if fetchuserfromplayerlisttolockon(targetplar) ~= nil then
+
+					targ = fetchuserfromplayerlisttolockon(targetplar)
+					phase = 3
+
+				end
+
+			elseif words[1] == "?fr" then
+
+				phase = 4
+				task.wait(0.05)
+				game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = HostPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0,0,0)
+
+			elseif words[1] == "?switch" then
+
+				local targetplar = words[2]
+
+				if fetchuserfromplayerlisttoswitchwith(targetplar) ~= nil then
+
+					HostPlayer = fetchuserfromplayerlisttoswitchwith(targetplar)
+					HostPlayerconn:Disconnect()
+					sethostplayerconnection()
+
+				end
+
+			elseif words[1] == "?aa" then
+
+				--autoattackEnabled = true
+				phase = 2
+
+				targ = fetchtarget()
+
+			elseif words[1] == "?aaoff" then
+
+				--autoattackEnabled = false
+				phase = 5
+				targ = nil
+
+			elseif words[1] == "?sr" then
+
+				targ = nil
+				phase = 5
+
+			elseif words[1] == "?bang" then
+
+				bang = not bang
+
+				if bang == true then
+
+					banganimationloaded = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):LoadAnimation(banganim)
+					banganimationloaded:Play()
+
+				else
+
+					banganimationloaded:Stop()
+
+				end
+
+			elseif words[1] == "?float" then
+
+				phase = 7
+
+			elseif words[1] == "?facedown" then
+				
+				xaxisFaceOrient = -90
+				zaxisFaceOrient = 0
+				
+			elseif words[1] == "?faceup" then
+				
+				xaxisFaceOrient = 90
+				zaxisFaceOrient = 0
+				
+			elseif words[1] == "?faceside" then
+				
+				xaxisFaceOrient = 0
+				zaxisFaceOrient = 90
+				
+			elseif words[1] == "?facenormal" then
+				
+				xaxisFaceOrient = 0
+				zaxisFaceOrient = 0
+
+			end
+
+		end)
+
+		print(err)
+
+	end)
+
+end
+
+sethostplayerconnection()
+
+coroutine.wrap(function()
+
+	while task.wait() do
+
+		if targ ~= nil then
+
+			right = not right
+
+		end
+
+		if right == true then
+
+			task.wait(0.5)
+
+		else
+
+			task.wait(2)
+
+		end
+
+	end
+
+end)()
+
+coroutine.wrap(function()
+
+	while task.wait() do
+
+		pcall(function()
+
+			if targ ~= nil and right == false then
+
+				game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 1)
+
+				if spammoves == true then
+
+					game:GetService("VirtualInputManager"):SendKeyEvent(true, 113, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(true, 49, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(true, 50, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(true, 51, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(true, 52, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(true, 103, false, game)
+
+				else
+
+					game:GetService("VirtualInputManager"):SendKeyEvent(false, 113, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(false, 49, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(false, 50, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(false, 51, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(false, 52, false, game)
+					game:GetService("VirtualInputManager"):SendKeyEvent(false, 103, false, game)
+
+				end
+
+				if spamR == true then
+
+					game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.R, false, game)
+
+				else
+
+					game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.R, false, game)
+
+				end
+
+				task.wait(0.1)
+				game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 1)
+
+			else
+
+				game:GetService("VirtualInputManager"):SendKeyEvent(false, 113, false, game)
+				game:GetService("VirtualInputManager"):SendKeyEvent(false, 49, false, game)
+				game:GetService("VirtualInputManager"):SendKeyEvent(false, 50, false, game)
+				game:GetService("VirtualInputManager"):SendKeyEvent(false, 51, false, game)
+				game:GetService("VirtualInputManager"):SendKeyEvent(false, 52, false, game)
+				game:GetService("VirtualInputManager"):SendKeyEvent(false, 103, false, game)
+				game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.R, false, game)
+
+			end
+
+		end)
+
+	end
+
+end)()
+
+
+local function viewChangedFunc()
+
+	if phase ~= 4 then
+
+		if targ == nil then
+
+			if checkdist(HostPlayer.Character.HumanoidRootPart) < 10 then
+
+				game:GetService("Workspace").CurrentCamera.CameraSubject = HostPlayer.Character.HumanoidRootPart
+
+			else
+
+				game:GetService("Workspace").CurrentCamera.CameraSubject = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+			end
+
+		else
+
+			if checkdist(targ) < 10 then
+
+				game:GetService("Workspace").CurrentCamera.CameraSubject = targ
+
+			else
+
+				game:GetService("Workspace").CurrentCamera.CameraSubject = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+			end
+
+		end
+
+	else
+
+		game:GetService("Workspace").CurrentCamera.CameraSubject = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+	end
+
+
+end
+
+game:GetService("Workspace").CurrentCamera:GetPropertyChangedSignal("CameraSubject"):Connect(viewChangedFunc)
+
+local debounceforAttack = false
+
+-- serversidehitboxfortarg --------------------------------------
+
+serverhitboxvisual3 = Instance.new("Part")
+serverhitboxvisual3.Anchored = true
+serverhitboxvisual3.CanCollide = false
+serverhitboxvisual3.Material = "Neon"
+serverhitboxvisual3.BrickColor = BrickColor.new("Really blue")
+serverhitboxvisual3.Size = Vector3.new(2,2.5,2)
+serverhitboxvisual3.Transparency = 0.75
+serverhitboxvisual3.Parent = game.ReplicatedStorage
+
+servhitboxdeba = false
+servhitboxdeba2 = false
+
+RedBrickColor = BrickColor.new("Really red")
+GreenBrickColor = BrickColor.new("Lime green")
+
+OLDPForTargetHitBoxVisual = Instance.new("Part")
+Offset = CFrame.new()
+
+offsetmultiplierforvisualiser = 1
+
+function serverhitboxvisualisationtargetfunction()
+
+	local succ, err = pcall(function()
+
+		if serverhitboxvisualisation == true and targ ~= nil and preciseLockOn == true then
+
+			if servhitboxdeba2 == true then
+
+				servhitboxdeba2 = false
+
+				serverhitboxvisual3.Transparency = 0.75
+				serverhitboxvisual3.Parent = effectfolder
+
+			end
+
+			Offset = OLDPForTargetHitBoxVisual.CFrame:ToObjectSpace(targ.CFrame)
+
+			multiplierXAxis = tonumber(XMultiplierOffsetTextBox.Text)
+			multiplierYAxis = tonumber(YMultiplierOffsetTextBox.Text)
+			multiplierZAxis = tonumber(ZMultiplierOffsetTextBox.Text)
+
+			if SubjectionYAxisToggled == true then
+
+				serverhitboxvisual3.CFrame = targ.CFrame * CFrame.new(Offset.X*multiplierXAxis,Offset.Y*multiplierYAxis,Offset.Z*multiplierZAxis )
+
+			else
+
+				serverhitboxvisual3.CFrame = targ.CFrame * CFrame.new(Offset.X*multiplierXAxis ,0,Offset.Z*multiplierZAxis )
+
+			end
+
+			serverhitboxvisual3.BrickColor = BrickColor.new("Really blue")
+
+			task.wait()
+
+
+		else
+
+			if servhitboxdeba2 == false then
+
+				servhitboxdeba2 = true
+
+				serverhitboxvisual3.CFrame = CFrame.new(0,0,0)
+				serverhitboxvisual3.Transparency = 1
+				serverhitboxvisual3.Parent = game.ReplicatedStorage
+
+			end
+
+			task.wait(0.1)
+
+		end
+
+	end)
+
+	if err then
+
+		task.wait(0.1)
+
+	end
+
+end
+
+function serverhitboxvisualisationtargetfunctionevaluation()
+
+	local succ, err = pcall(function()
+
+		if serverhitboxvisualisation == true and targ ~= nil and preciseLockOn == true then
+
+			OLDPForTargetHitBoxVisual.CFrame = targ.CFrame*CFrame.new(0,0,0)
+
+			task.wait(0.04)
+
+
+		else
+
+			task.wait(0.1)
+
+		end
+
+	end)
+
+	if err then
+
+		task.wait(0.1)
+
+	end
+
+end
+
+
+coroutine.wrap(function()
+
+	while true do
+
+		serverhitboxvisualisationtargetfunction()
+
+	end
+
+end)()
+
+coroutine.wrap(function()
+
+	while true do
+
+		serverhitboxvisualisationtargetfunctionevaluation()
+
+	end
+
+end)()
+
+--
+
+local ThresholdDistance = 10
+
+local dest = HostPlayer.Character.HumanoidRootPart
+
+-- auto attack
+
+function fetchtarget()
+
+	local dist = 1000
+	local finaltarg = nil
+
+	for i,v in ipairs(game:GetService("Players"):GetChildren()) do
+
+		local h = v.Character:FindFirstChildOfClass("Humanoid")
+		local hr = v.Character:FindFirstChild("HumanoidRootPart")
+
+		if h and hr and h.Health >0 and v.Name ~= HostPlayer.Name and v.Name ~= game:GetService("Players").LocalPlayer.Name and v:IsFriendsWith(HostPlayer.UserId) == false then
+
+			if (game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - hr.Position).magnitude < dist then
+
+				finaltarg = hr
+				dist = (game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - hr.Position).magnitude
+
+			end
+
+		end
+
+	end
+
+	return finaltarg
+
+end
+
+--
+
+coroutine.wrap(function()
+
+	while task.wait(0.05) do
+
+		pcall(function()
+
+			if game.PlaceId == 10449761463 then
+
+				if game:GetService("Players").LocalPlayer.Character.Humanoid.Health < 1 then
+
+					if game:GetService("Workspace"):FindFirstChild("Thrown") then
+
+						game:GetService("Workspace").Thrown.Name = "Thrown2"
+
+					end
+
+				else
+
+					task.wait(0.1)
+
+					if game:GetService("Workspace"):FindFirstChild("Thrown2") then
+
+						game:GetService("Workspace").Thrown2.Name = "Thrown"
+
+					end
+
+				end
+
+			end
+
+		end)
+
+	end
+
+end)()
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+
+	dest = HostPlayer.Character.HumanoidRootPart
+	local velflyspeed = tonumber(VelSpeedTextBox.Text)
+	local tpdistspeed = tonumber(TPDistTextBox.Text)
+
+	local SRZDist = tonumber(SRZTextBox.Text)
+	local SRYDist = tonumber(SRYTextBox.Text)
+	local SRXDist = tonumber(SRXTextBox.Text)
+
+	if targ ~= nil then
+
+		if not targ:IsDescendantOf(game:GetService("Workspace")) or targ.Parent:FindFirstChildOfClass("Humanoid").Health <= 0 then
+
+			if autoattackEnabled == false then
+
+				phase = 5
+
+			end
+
+			targ = nil
+
+		end
+
+	end
+
+	if phase == 5 then
+
+		dest = HostPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(SRXDist,SRYDist,SRZDist) * CFrame.Angles(math.rad(xaxisFaceOrient), 0, math.rad(zaxisFaceOrient))
+
+	end
+
+	if phase ~= 4 then
+
+		if targ == nil then
+
+			if checkdist(dest) < ThresholdDistance then
+
+				game:GetService("Workspace").CurrentCamera.CameraSubject = HostPlayer.Character.HumanoidRootPart
+
+			else
+
+				game:GetService("Workspace").CurrentCamera.CameraSubject = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+			end
+
+		else
+
+			if preciseLockOn == false then
+
+				if checkdist(targ) < 10 then
+
+					if camaimbottoggled == true then
+
+						game:GetService("Workspace").CurrentCamera.CameraSubject = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+					else
+
+						game:GetService("Workspace").CurrentCamera.CameraSubject = targ
+
+					end
+
+				else
+
+					game:GetService("Workspace").CurrentCamera.CameraSubject = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+				end
+
+			else
+
+				game:GetService("Workspace").CurrentCamera.CameraSubject = targ
+
+			end
+
+		end
+
+		game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
+		game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
+		game:GetService("Workspace").Gravity = 0
+		game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.FallingDown)
+
+	else
+
+		game:GetService("Workspace").Gravity = 169
+
+		game:GetService("Workspace").CurrentCamera.CameraSubject = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+	end
+
+	if phase == 1 or phase == 5 or phase == 6 then
+
+		if checkdist(dest) < ThresholdDistance then
+
+			if phase == 5 then
+
+				game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = HostPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(SRXDist,SRYDist,SRZDist) * CFrame.Angles(math.rad(xaxisFaceOrient), 0, math.rad(zaxisFaceOrient))
+
+			else
+
+				game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = HostPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(-3,3,3) * CFrame.Angles(math.rad(xaxisFaceOrient), 0, math.rad(zaxisFaceOrient))
+
+			end
+
+		else
+
+			game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position, dest.Position)
+			game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Velocity = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * velflyspeed
+			game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0,0,tpdistspeed)
+
+		end
+
+	elseif phase == 2 then
+
+		if targ ~= nil then
+
+			if camaimbottoggled == true then
+
+				game:GetService("Workspace").CurrentCamera.CFrame = CFrame.new(game:GetService("Workspace").CurrentCamera.CFrame.Position, targ.Position)
+
+			end
+
+			if preciseLockOn == false then
+
+				if checkDistance == true then
+
+					if checkdist(targ) < 10 then
+
+						if right == false then
+
+							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,5,1) * CFrame.Angles(math.rad(-70),0,0)
+
+						else
+
+							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,10,1) * CFrame.Angles(math.rad(-70),0,0)
+
+						end
+
+					else
+
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position, targ.Position)
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Velocity = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * velflyspeed
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0,0,tpdistspeed)
+
+					end
+
+				else
+
+					if right == false then
+
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,5,1) * CFrame.Angles(math.rad(-70),0,0)
+
+					else
+
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,10,1) * CFrame.Angles(math.rad(-70),0,0)
+
+					end
+
+				end
+
+			else
+
+				orientLockOnDedicatedPart.CFrame = serverhitboxvisual3.CFrame*CFrame.new(0,0,0)
+				orientLockOnDedicatedPart.Orientation = Vector3.new(0,orientLockOnDedicatedPart.Orientation.Y,0)
+
+				if checkDistance == true then
+
+					if checkdist(targ) < 10 then
+
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = orientLockOnDedicatedPart.CFrame*CFrame.new(0,5,1) * CFrame.Angles(math.rad(-70),0,0)
+
+					else
+
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position, targ.Position)
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Velocity = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * velflyspeed
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0,0,tpdistspeed)
+
+					end
+
+				else
+
+					game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = orientLockOnDedicatedPart.CFrame*CFrame.new(0,5,1) * CFrame.Angles(math.rad(-70),0,0)
+
+				end
+
+			end
+
+		end
+
+	elseif phase == 3 then
+
+		game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,5,3)
+
+	elseif phase == 7 then
+
+
+
+	end
+
+	game:GetService("Workspace").FallenPartsDestroyHeight = 0/0
+
+end)
