@@ -1317,7 +1317,11 @@ game:GetService("RunService").RenderStepped:Connect(function()
 
 	elseif phase == 7 then
 
-		game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.FallingDown)
+		local op = Instance.new("Part")
+		op.CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0,0,0)
+		op.Orientation = Vector3.new(0,op.Orientation.Y,0)
+		
+		game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = op.CFrame*CFrame.new(0,0,0) * CFrame.Angles(math.rad(xaxisFaceOrient), 0, math.rad(zaxisFaceOrient))
 
 	end
 
