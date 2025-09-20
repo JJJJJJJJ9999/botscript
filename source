@@ -1252,7 +1252,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
 
 						if right == false then
 
-							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,5,1) * CFrame.Angles(math.rad(-70),0,0)
+							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,3,1) * CFrame.Angles(math.rad(-70),0,0)
 
 						else
 
@@ -1272,7 +1272,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
 
 					if right == false then
 
-						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,5,1) * CFrame.Angles(math.rad(-70),0,0)
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targ.CFrame*CFrame.new(0,3,1) * CFrame.Angles(math.rad(-70),0,0)
 
 					else
 
@@ -1291,7 +1291,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
 
 					if checkdist(targ) < 10 then
 
-						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = orientLockOnDedicatedPart.CFrame*CFrame.new(0,5,1) * CFrame.Angles(math.rad(-70),0,0)
+						game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = orientLockOnDedicatedPart.CFrame*CFrame.new(0,3,1) * CFrame.Angles(math.rad(-70),0,0)
 
 					else
 
@@ -1303,7 +1303,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
 
 				else
 
-					game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = orientLockOnDedicatedPart.CFrame*CFrame.new(0,5,1) * CFrame.Angles(math.rad(-70),0,0)
+					game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = orientLockOnDedicatedPart.CFrame*CFrame.new(0,3,1) * CFrame.Angles(math.rad(-70),0,0)
 
 				end
 
