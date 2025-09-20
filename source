@@ -659,6 +659,8 @@ function sethostplayerconnection()
 
 	HostPlayerconn = HostPlayer.Chatted:Connect(function(message)
 
+		print("LOL")
+
 		local succ, err = pcall(function()
 
 			local words = {}
