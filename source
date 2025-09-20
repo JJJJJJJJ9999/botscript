@@ -1,3 +1,5 @@
+local TextChatService = game:GetService("TextChatService")
+
 ---botscript only works for jjs u'll have to change remotes for other games
 
 function movebuttonshandler()
@@ -166,7 +168,7 @@ for i,v in ipairs(game:GetService("Players"):GetChildren()) do
 
 	--if v:IsFriendsWith(game:GetService('Players').LocalPlayer.UserId) then
 
-		createHostPickerButton(v.Name, v.DisplayName)
+	createHostPickerButton(v.Name, v.DisplayName)
 
 	--end
 
@@ -657,127 +659,131 @@ local zaxisFaceOrient = 0
 
 function sethostplayerconnection()
 
-	HostPlayerconn = HostPlayer.Chatted:Connect(function(message)
+	HostPlayerconn = TextChatService.MessageReceived:Connect(function(messageParam)
+		if messageParam.TextSource then
+			local playerSource = game:GetService("Players"):GetPlayerByUserId(messageParam.TextSource.UserId)
+			
+			if playerSource == HostPlayer then
+				
+				local message = messageParam.Text
+				
+				local succ, err = pcall(function()
 
-		print("LOL")
+					local words = {}
+					for word in message:gmatch("%S+") do
+						table.insert(words, word)
+					end
 
-		local succ, err = pcall(function()
+					if words[1] == "?r" then
 
-			local words = {}
-			for word in message:gmatch("%S+") do
-				table.insert(words, word)
+						targ = nil
+						phase = 1
+
+					elseif words[1] == "?a" then
+
+						local targetplar = words[2]
+
+						if fetchuserfromplayerlisttolockon(targetplar) ~= nil then
+
+							targ = fetchuserfromplayerlisttolockon(targetplar)
+							phase = 2
+
+						end
+
+					elseif words[1] == "?b" then
+
+						local targetplar = words[2]
+
+						if fetchuserfromplayerlisttolockon(targetplar) ~= nil then
+
+							targ = fetchuserfromplayerlisttolockon(targetplar)
+							phase = 3
+
+						end
+
+					elseif words[1] == "?fr" then
+
+						phase = 4
+						task.wait(0.05)
+						game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = HostPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0,0,0)
+
+					elseif words[1] == "?switch" then
+
+						local targetplar = words[2]
+
+						if fetchuserfromplayerlisttoswitchwith(targetplar) ~= nil then
+
+							HostPlayer = fetchuserfromplayerlisttoswitchwith(targetplar)
+							HostPlayerconn:Disconnect()
+							sethostplayerconnection()
+
+						end
+
+					elseif words[1] == "?aa" then
+
+						--autoattackEnabled = true
+						phase = 2
+
+						targ = fetchtarget()
+
+					elseif words[1] == "?aaoff" then
+
+						--autoattackEnabled = false
+						phase = 5
+						targ = nil
+
+					elseif words[1] == "?sr" then
+
+						targ = nil
+						phase = 5
+
+					elseif words[1] == "?bang" then
+
+						bang = not bang
+
+						if bang == true then
+
+							banganimationloaded = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):LoadAnimation(banganim)
+							banganimationloaded:Play()
+
+						else
+
+							banganimationloaded:Stop()
+
+						end
+
+					elseif words[1] == "?float" then
+
+						phase = 7
+
+					elseif words[1] == "?facedown" then
+
+						xaxisFaceOrient = -90
+						zaxisFaceOrient = 0
+
+					elseif words[1] == "?faceup" then
+
+						xaxisFaceOrient = 90
+						zaxisFaceOrient = 0
+
+					elseif words[1] == "?faceside" then
+
+						xaxisFaceOrient = 0
+						zaxisFaceOrient = 90
+
+					elseif words[1] == "?facenormal" then
+
+						xaxisFaceOrient = 0
+						zaxisFaceOrient = 0
+
+					end
+
+				end)
+				
 			end
-
-			if words[1] == "?r" then
-
-				targ = nil
-				phase = 1
-
-			elseif words[1] == "?a" then
-
-				local targetplar = words[2]
-
-				if fetchuserfromplayerlisttolockon(targetplar) ~= nil then
-
-					targ = fetchuserfromplayerlisttolockon(targetplar)
-					phase = 2
-
-				end
-
-			elseif words[1] == "?b" then
-
-				local targetplar = words[2]
-
-				if fetchuserfromplayerlisttolockon(targetplar) ~= nil then
-
-					targ = fetchuserfromplayerlisttolockon(targetplar)
-					phase = 3
-
-				end
-
-			elseif words[1] == "?fr" then
-
-				phase = 4
-				task.wait(0.05)
-				game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = HostPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0,0,0)
-
-			elseif words[1] == "?switch" then
-
-				local targetplar = words[2]
-
-				if fetchuserfromplayerlisttoswitchwith(targetplar) ~= nil then
-
-					HostPlayer = fetchuserfromplayerlisttoswitchwith(targetplar)
-					HostPlayerconn:Disconnect()
-					sethostplayerconnection()
-
-				end
-
-			elseif words[1] == "?aa" then
-
-				--autoattackEnabled = true
-				phase = 2
-
-				targ = fetchtarget()
-
-			elseif words[1] == "?aaoff" then
-
-				--autoattackEnabled = false
-				phase = 5
-				targ = nil
-
-			elseif words[1] == "?sr" then
-
-				targ = nil
-				phase = 5
-
-			elseif words[1] == "?bang" then
-
-				bang = not bang
-
-				if bang == true then
-
-					banganimationloaded = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):LoadAnimation(banganim)
-					banganimationloaded:Play()
-
-				else
-
-					banganimationloaded:Stop()
-
-				end
-
-			elseif words[1] == "?float" then
-
-				phase = 7
-
-			elseif words[1] == "?facedown" then
-				
-				xaxisFaceOrient = -90
-				zaxisFaceOrient = 0
-				
-			elseif words[1] == "?faceup" then
-				
-				xaxisFaceOrient = 90
-				zaxisFaceOrient = 0
-				
-			elseif words[1] == "?faceside" then
-				
-				xaxisFaceOrient = 0
-				zaxisFaceOrient = 90
-				
-			elseif words[1] == "?facenormal" then
-				
-				xaxisFaceOrient = 0
-				zaxisFaceOrient = 0
-
-			end
-
-		end)
-
-		print(err)
-
+		end
 	end)
-
+	
 end
 
 sethostplayerconnection()
