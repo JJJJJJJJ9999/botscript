@@ -1,0 +1,73 @@
+local target = game.Players.RogueTurboNinja.Character
+
+local previousRotations = {}
+
+local listofm1animations = {}
+local listofchaseanimations = {}
+
+pcall(function()
+
+	for i,v in ipairs(game.ReplicatedStorage.Animations:GetDescendants()) do
+
+		if v:IsA("Animation") and (v.Name == "DashLeft" or v.Name == "DashRight" or v.Name == "Chase" or v.Name == "DashFront") then
+
+			listofm1animations[tostring(v.AnimationId)] = true
+
+			if v.Name == "Chase" then
+
+				listofchaseanimations[tostring(v.AnimationId)] = true
+
+			end
+
+		end
+
+	end
+
+end)
+
+conn = target.Humanoid.AnimationPlayed:Connect(function(track)
+
+    if listofm1animations[tostring(track.Animation.AnimationId)] == true then
+
+        local offsetdictator = Instance.new("Part")
+        offsetdictator.Anchored = true
+        offsetdictator.CanCollide = false
+        offsetdictator.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, target.HumanoidRootPart.Position)
+        offsetdictator.Orientation = Vector3.new(0, offsetdictator.Orientation.Y, 0)
+
+        local blockback = coroutine.create(function()
+        
+            local op = Instance.new("Part")
+            op.Anchored = true
+            op.CanCollide = false
+            op.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, target.HumanoidRootPart.Position)
+            op.Orientation = Vector3.new(0, op.Orientation.Y, 0)
+
+            game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.F, false, game)
+
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = op.CFrame*CFrame.new(0,0,0)*CFrame.Angles(0,math.rad(180),0)
+
+            task.wait(0.4)
+
+            op.CFrame = CFrame.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, target.HumanoidRootPart.Position)
+            op.Orientation = Vector3.new(0, op.Orientation.Y, 0)
+
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = op.CFrame*CFrame.new(0,0,0)
+
+        end)
+
+        coroutine.resume(blockback)
+
+        task.wait(0.2)
+
+        local offset = offsetdictator.CFrame:ToObjectSpace(target.HumanoidRootPart.CFrame)
+
+        if offset.Z > 0.1 then
+
+            coroutine.close(blockback)
+
+        end
+
+    end
+
+end)
